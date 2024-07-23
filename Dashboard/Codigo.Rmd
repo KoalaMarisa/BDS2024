@@ -1,0 +1,60 @@
+---
+title: "La felicidad en Europa desde 2002 hasta 2014"
+author: "Maria Isabel Gamez Salazar"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source_code: embed
+runtime : shiny
+---
+
+```{r setup, include=FALSE}
+install.packages("flexdashboard")
+install.packages("maps")
+install.packages("DT")
+install.packages("shiny")
+install.packages("here")
+
+library (ggplot2)
+library (flexdashboard)
+library (tidyverse)
+library (maps)
+library (DT)
+library (shiny)
+library (dplyr)
+library (here)
+```
+```{r}
+# Cargar datos
+# Definir la ruta absoluta del archivo CSV
+file_path <- "/Users/mariaisabelgamezsalazar/BDS2024/data/m8datoslimpios.csv"
+
+# Cargar datos usando la ruta absoluta
+m8datos_limpios <- read.csv(file_path)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+

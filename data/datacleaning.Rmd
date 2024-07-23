@@ -1,6 +1,27 @@
+---
+title: "Data cleaning process"
+author: "Maria Isabel Gamez Salazar"
+date: "2024-07-22"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    toc_float: true
+---
+```{r setup, include=FALSE}
+# Configuración inicial
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width = 8, fig.height = 8)
 
+# Configurar el espejo de CRAN
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+# Cargar librerías necesarias
+library(dplyr)
+library(ggplot2)
+library(readr)
+```
 ```{r}
-# Instalar y cargar la librería que podemos necesitar. 
+# *Instalar y cargar la librería que podemos necesitar* 
 install.packages("dplyr")
 library(dplyr)
 ```
@@ -60,6 +81,8 @@ write.csv(m8datos_limpios, "m8datoslimpios.csv", row.names = FALSE)
 # Uso la función write.csv() y guarda el dataframe m8datos_limpios en un archivo CSV llamado "m8datoslimpios.csv" sin índices de fila (row.names = FALSE) en R y GitHub at the same time. 
 
 ```
-
+```{r}
+getwd()
+```
 
 
