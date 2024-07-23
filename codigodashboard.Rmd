@@ -6,16 +6,37 @@ output:
     orientation: columns
     vertical_layout: fill
     social: menu
+    source_code: embed 
 ---
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+install.packages("rmarkdown")
+install.packages("flexdashboard")
+install.packages("maps")
+install.packages("DT")
+install.packages("shiny")
+install.packages("here")
+
+library (ggplot2)
+library (flexdashboard)
+library (tidyverse)
+library (maps)
+library (DT)
+library (shiny)
+library (dplyr)
+library (here)
+```
+
+```{r}
+file_path <- "/Users/mariaisabelgamezsalazar/BDS2024/data/m8datoslimpios.csv"
+m8datos_limpios <- read.csv(file_path)
 ```
 
 Column {data-width=650}
 -----------------------------------------------------------------------
 
-### Chart A
+### Evolucion de la felicidad 2002-2014
 
 ```{r}
 
@@ -24,13 +45,13 @@ Column {data-width=650}
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### Chart B
+### Mapa de la felicidad media
 
 ```{r}
 
 ```
 
-### Chart C
+### Relacion felicidad y tiempo total de visualizacion de tv
 
 ```{r}
 
