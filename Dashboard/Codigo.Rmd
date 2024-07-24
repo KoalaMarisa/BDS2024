@@ -23,6 +23,8 @@ library(shinydashboard)
 library (dplyr)
 library (here)
 library (gridExtra)
+install.packages("knitr")
+
 ```
 
 ```{r}
