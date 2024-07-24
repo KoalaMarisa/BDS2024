@@ -22,24 +22,16 @@ install.packages("knitr")
 \renewcommand{\refname}{Referencias}
 \renewcommand{\tablename}{Tabla}
 
+\usepackage{Sweave}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+\input{Informe-concordance}
 \maketitle
 \section {Introducción}
-<<echo=FALSE>>=
-library (here)
-library(dplyr)
-library (maps)
-library (ggplot2)
-library (knitr)
-file_path <- "/Users/mariaisabelgamezsalazar/BDS2024/data/m8datoslimpios.csv"
-m8datos_limpios <- read.csv(file_path)
-@
 
 \noindent El presente informe aborda de manera sencilla el nivel de felicidad en la población de 15 países europeos durante el período comprendido entre 2002 y 2014. El análisis tiene como objetivo principal investigar las tendencias y variaciones en la felicidad a lo largo del tiempo, así como identificar posibles factores que puedan influir en este sentimiento.
 
 
-Los datos se han obtenido a partir de los resultados de \Sexpr{nrow(m8datos_limpios)} encuestas de las \Sexpr{length(unique(m8datos_limpios$year))} ediciones de la [European Social Survey](https://www.europeansocialsurvey.org/) en \Sexpr{length(unique(m8datos_limpios$cntry))} países de Europa. Estas encuestas han tenido lugar desde \Sexpr{min(m8datos_limpios$year)} hasta \Sexpr{max(m8datos_limpios$year)}.
+Los datos se han obtenido a partir de los resultados de 114473 encuestas de las 4 ediciones de la [European Social Survey](https://www.europeansocialsurvey.org/) en 15 países de Europa. Estas encuestas han tenido lugar desde 2002 hasta 2014.
 
 
 Se espera que este informe proporcione una visión integral sobre los niveles de felicidad en Europa y cómo estos han cambiado a lo largo del tiempo. También se anticipa identificar factores que influyen significativamente en la felicidad, lo cual puede tener implicaciones importantes para la formulación de políticas públicas y estrategias de bienestar social.
@@ -101,33 +93,6 @@ En la tabla superior podemos observar la media de la felicidad de esos años esc
 \subsection {Gráficos}
 \begin{figure}[H]
 \centering
-<<echo=FALSE, fig.width=8, fig.height=6, fig.cap="Promedio de felicidad por país y año">>=
-library(dplyr)
-library(ggplot2)
-
-avg_happy <- m8datos_limpios %>%
-  group_by(cntry, year) %>%
-  summarize(mean_happy = mean(happy, na.rm = TRUE))
-
-custom_palette <- c("#999999", "#56B4E9", "#0072B2", "#E69F00", "#D55E00",
-                    "#CC79A7", "#8B4513", "#B2DF8A", "#33A02C", "#FB9A99",
-                    "#E31A1C", "#6A3D9A", "#FFFF99", "#F0E442", "#00CED1")
-
-grafico1 <-ggplot(avg_happy, aes(x = year, y = mean_happy, color = cntry, group = cntry)) +
-  geom_smooth(method = "loess", se = FALSE, size = 1) +
-  scale_x_continuous(breaks = seq(2002, 2014, by = 2), limits = c(2002, 2014)) +
-  scale_y_continuous(limits = c(0, 10)) +
-  labs(title = "Evolucion de felicidad por país y año",
-       x = "Año",
-       y = "Promedio de puntuación de felicidad",
-       color = "País") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "bottom") +
-  scale_color_manual(values = custom_palette)
-plot(grafico1)
-#Aunque el código del gráfico está y se ve en el Plots y se ejecutaría, cambiamos en el chunk fig a FALSE para que no se cargue y lo engancharé como imagen
-@
 \caption{"Evolucion de felicidad por país y año"}
 \includegraphics [scale=0.8] {grafico1.png}
 \end{figure}
