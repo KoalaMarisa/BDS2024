@@ -208,24 +208,47 @@ ggsave("grafico3.png", plot = grafico3, width = 8, height = 6)
 \includegraphics[scale=0.8]{grafico3.png}
 \end{figure}
 
-\begin{figure}[h!]
-<<echo=FALSE, fig.width=8, fig.height=6, fig.cap="Relación entre felicidad, salud y genero">>=
-  grafico4 <- ggplot(data, aes(x = health, y = happy, color = gndr, group = gndr)) +
-    stat_summary(fun = mean, geom = "line", size = 1.2) +
-    stat_summary(fun = mean, geom = "point", size = 3) +
-    scale_color_manual(values = c("Male" = "blue", "Female" = "pink")) +
-    labs(title = "Interacción entre género y salud en la felicidad",
-         x = "Nivel de salud",
-         y = "Felicidad",
-         color = "Género") +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# Mostrar el mapa
+\begin{figure}[p]
+<<echo=FALSE>>=
+filtered_data <- m8datos_limpios %>%
+  mutate(gndr = recode(gndr, `1` = "Male", `2` = "Female")) %>%
+  filter(!is.na(health) & !is.na(happy))
+
+grafico4 <- ggplot(filtered_data, aes(x = health, y = happy, color = gndr, group = gndr)) +
+  geom_smooth(method = "lm", se = TRUE, size = 1.2) +
+  scale_color_manual(values = c("Male" = "blue", "Female" = "pink")) +
+  labs(title = "Interacción entre género y salud en la felicidad",
+       x = "Nivel de salud",
+       y = "Felicidad",
+       color = "Género") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 print(grafico4)
 
-# Guardar el gráfico
 ggsave("grafico4.png", plot = grafico4, width = 8, height = 6)
+
+
 @
+
+Este gráfico permite observar cómo varía la felicidad en función del nivel de salud y el género, proporcionando una visión clara de la interacción entre estas variables.
+\centering 
 \includegraphics[scale=0.8]{grafico4.png}
 \end{figure}
+
+
+
+\clearpage % Forzar salto de página antes de la conclusión
+\section {Conclusiones del análisis de datos y de la visualización de la felicidad europea (2002-2014)
+}
+
+
+El análisis de la felicidad en Europa entre los años 2002 y 2014, basado en los datos de 15 países seleccionados, revela varias observaciones interesantes a través de los cuatro gráficos presentados:
+
+La visualización de la evolución temporal de la felicidad y de la media muestra que, en general, los niveles de felicidad se han mantenido relativamente estables en la mayoría de los países europeos durante el periodo estudiado. Sin embargo, destaca el hecho de que los países nórdicos, tradicionalmente considerados más fríos, como Dinamarca, Noruega y Suecia, muestran consistentemente altos niveles de felicidad en comparación con países más cálidos humanamente como España y Portugal. 
+
+El gráfico de dispersión que analiza la relación entre la felicidad y el tiempo total de televisión revela una correlación muy baja entre estas variables. Esto indica que el tiempo dedicado a ver televisión no es un factor determinante en la percepción de felicidad de los individuos. 
+
+El gráfico de interacción que muestra la relación entre felicidad, género y salud revela patrones interesantes que habría que estudiar. Aparentemente, existe una tendencia a que una mejor salud se asocie con menores niveles de felicidad, y viceversa. 
+
 \end{document}
