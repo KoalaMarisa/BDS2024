@@ -197,4 +197,4 @@ paises_mas_felices <- media_felicidad %>%
 
 #
 
-¡GRACIAS!
+¡Muchas gracias David! 

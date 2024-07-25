@@ -5,7 +5,6 @@
 \usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{float}
-\usepackage{knitr}
 
 \title{Informe conciso}
 \author {Maria Isabel Gamez Salazar}
@@ -26,13 +25,13 @@
 \SweaveOpts{concordance=TRUE}
 \maketitle
 \section {Introducción}
-<<echo=FALSE>>=
+<<setup, include=FALSE, echo=FALSE>>=
 library (here)
 library(dplyr)
 library (maps)
 library (ggplot2)
 library (knitr)
-file_path <- "/Users/mariaisabelgamezsalazar/BDS2024/data/m8datoslimpios.csv"
+file_path <- "m8datoslimpios.csv"
 m8datos_limpios <- read.csv(file_path)
 @
 
@@ -69,7 +68,7 @@ Además de esas, se creará un dashboard en el que se incluirán las siguientes 
 \subsection{Tablas}
 
 \begin {tabular}{l | c }
-\caption {Tabla ejemplo sobre la felicidad media} \\
+  
 
 \hline
 \bf{País} & \bf{Felicidad} \\ 
@@ -99,8 +98,7 @@ En la tabla superior podemos observar la media de la felicidad de esos años esc
 
 \newpage
 \subsection {Gráficos}
-\begin{figure}[H]
-\centering
+\begin{figure}[h!]
 <<echo=FALSE, fig.width=8, fig.height=6, fig.cap="Promedio de felicidad por país y año">>=
 library(dplyr)
 library(ggplot2)
@@ -126,12 +124,153 @@ grafico1 <-ggplot(avg_happy, aes(x = year, y = mean_happy, color = cntry, group 
         legend.position = "bottom") +
   scale_color_manual(values = custom_palette)
 plot(grafico1)
-#Aunque el código del gráfico está y se ve en el Plots y se ejecutaría, cambiamos en el chunk fig a FALSE para que no se cargue y lo engancharé como imagen
+ggsave("grafico1.png", plot = grafico1, width = 8, height = 6)
 @
-\caption{"Evolucion de felicidad por país y año"}
-\includegraphics [scale=0.8] {grafico1.png}
+
+\centering
+\includegraphics[scale=0.8]{grafico1.png}
+\caption{Evolucion de felicidad por país y año}
+\end{figure}
+
+
+<<echo=FALSE, fig.width=8, fig.height=6, fig=TRUE>>=
+
+library(dplyr)
+library(ggplot2)
+library(maps)
+library(mapdata)
+
+m8datos_limpios <- read.csv(file_path)
+
+# Crear el gráfico y guardar como PNG
+media_felicidad <- m8datos_limpios %>%
+  group_by(cntry) %>%
+  summarise(mean_happy = mean(happy, na.rm = TRUE))
+
+# Filtrar los países seleccionados
+paises_seleccionados <- c("BE", "CH", "DE", "DK", "ES", "FI", "FR", "GB", "HU", "IE", "NL", "NO", "PL", "PT", "SE")
+media_felicidad <- media_felicidad %>% filter(cntry %in% paises_seleccionados)
+
+# Obtener los datos del mapa de Europa
+world <- map_data("world")
+europe_map <- world %>%
+  filter(region %in% c("Belgium", "Switzerland", "Germany", "Denmark", "Spain", "Finland", "France", "UK", "Hungary", "Ireland", "Netherlands", "Norway", "Poland", "Portugal", "Sweden"))
+
+# Recode los nombres de los países en el mapa de Europa para que coincidan con los códigos de país
+europe_map$region <- recode(europe_map$region, 
+                            'UK' = 'GB',
+                            'Belgium' = 'BE',
+                            'Switzerland' = 'CH',
+                            'Germany' = 'DE',
+                            'Denmark' = 'DK',
+                            'Spain' = 'ES',
+                            'Finland' = 'FI',
+                            'France' = 'FR',
+                            'Hungary' = 'HU',
+                            'Ireland' = 'IE',
+                            'Netherlands' = 'NL',
+                            'Norway' = 'NO',
+                            'Poland' = 'PL',
+                            'Portugal' = 'PT',
+                            'Sweden' = 'SE')
+
+# Unir los datos de felicidad media con los datos del mapa
+europe_happiness <- merge(europe_map, media_felicidad, by.x = "region", by.y = "cntry")
+
+# Crear el mapa de felicidad media
+grafico2 <- ggplot(data = europe_happiness, aes(x = long, y = lat, group = group, fill = mean_happy)) +
+  geom_polygon(color = "white", size = 0.2) +
+  coord_fixed(1.3) +
+  scale_fill_viridis_c(option = "plasma", name = "Media de Felicidad", na.value = "grey50") +
+  labs(title = "Nivel de felicidad en Europa (2002-2014)",
+       caption = "Fuente: Encuesta ESS") +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(fill = "white"),
+    panel.background = element_rect(fill = "white"),
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"),
+    plot.title = element_text(color = "black"),
+    panel.grid.major = element_line(color = "grey", size = 0.5),
+    panel.grid.minor = element_blank()
+  )
+
+# Mostrar el mapa
+print(grafico2)
+
+# Guardar el gráfico
+ggsave("grafico2.png", plot = grafico2, width = 8, height = 6)
+@
+
+
+\begin{figure}[h!]
+<<echo=FALSE, fig.width=8, fig.height=6, fig.cap="Relación entre felicidad y horas totales de televisión">>=
+# Crear el gráfico de correlación
+grafico3 <- ggplot(m8datos_limpios, aes(x = tvtot, y = happy)) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +  # Línea de regresión con intervalo de confianza
+  scale_y_continuous(limits = c(6, 8)) +
+  labs(title = "Relación entre felicidad y horas totales de televisión",
+       x = "Horas totales de televisión (tvtot)",
+       y = "Puntuación de felicidad") +
+  theme_minimal()
+
+# Mostrar el mapa
+print(grafico3)
+
+# Guardar el gráfico
+ggsave("grafico3.png", plot = grafico3, width = 8, height = 6)
+
+
+@
+\centering
+\includegraphics[scale=0.8]{grafico3.png}
+\caption{Relación TV y felicidad}
+\end{figure}
+
+\begin{figure}[!]
+<<echo=FALSE, fig.width=8, fig.height=6, fig.cap="Relación entre salud, felicidad y genero>>=
+renderPlot({
+  data <- filtered_data()
+  if (nrow(data) == 0) return(NULL)
+  
+  data <- data %>%
+    mutate(gndr = recode(gndr, `1` = "Male", `2` = "Female")) %>%
+    filter(!is.na(health) & !is.na(happy))
+
+  grafico4 <- ggplot(data, aes(x = health, y = happy, color = gndr, group = gndr)) +
+    stat_summary(fun = mean, geom = "line", size = 1.2) +
+    stat_summary(fun = mean, geom = "point", size = 3) +
+    scale_color_manual(values = c("Male" = "blue", "Female" = "pink")) +
+    labs(title = "Interacción entre género y salud en la felicidad",
+         x = "Nivel de salud",
+         y = "Felicidad",
+         color = "Género") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# Mostrar el mapa
+print(grafico4)
+
+# Guardar el gráfico
+ggsave("grafico4.png", plot = grafico4, width = 8, height = 6)
+
+@
+\centering
+\includegraphics[scale=0.8]{grafico4.png}
+\caption{Relación salud, genero y felicidad}
 \end{figure}
 
 
 
+\section {Conclusiones}
+
+El gráfico de la evolución de la felicidad muestra que en estos países europeos hay una media alta de felicidad, con variaciones entre cada país y con cierta estabilidad. 
+
+Podemos ver claramente que Hungría y Portugal son los países con menor felicidad media y en cambio Dinamarca y Suiza son los que puestan una mayor felicidad media. 
+
+Los datos indican que existe una correlación débil entre "felicidad" y "tiempo total de visualización de la televisión, pero cuanto más ven la televisión la felicidad disminuye. 
+Los datos muestra una tendencia, a medida que los niveles de salud reportados aumentan, los niveles de felicidad reportados tienden a disminuir. Esta relación no es fuerte, pero es notable.
+
+
 \end{document}
+
+
