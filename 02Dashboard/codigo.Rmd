@@ -28,8 +28,7 @@ library (gridExtra)
 ```
 
 ```{r}
-file_path <- "../data/m8datoslimpios.csv"
-m8datos_limpios <- read.csv(file_path)
+m8datos_limpios <- read.csv(here("01data", "m8datoslimpios.csv"))
 
 ```
 Column {.sidebar data-width=150}

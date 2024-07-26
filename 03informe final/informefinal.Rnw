@@ -27,7 +27,7 @@ library(dplyr)
 library(maps)
 library(ggplot2)
 library(knitr)
-m8datos_limpios <-  read.csv(here("data", "m8datoslimpios.csv"))
+m8datos_limpios <- read.csv(here("01data", "m8datoslimpios.csv"))
 @
 
 \noindent El presente informe aborda de manera sencilla el nivel de felicidad en la población de 15 países europeos durante el período comprendido entre 2002 y 2014. El análisis tiene como objetivo principal investigar las tendencias y variaciones en la felicidad a lo largo del tiempo, así como identificar posibles factores que puedan influir en este sentimiento.
