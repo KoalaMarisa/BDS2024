@@ -31,3 +31,5 @@ Se espera que este informe proporcione una visión integral sobre los niveles de
 * Salud: las puntuaciones van de 1 (muy mala) a 5 (muy buena).
 * Género: las variables de la encuesta son "1" (hombre) o "2" (mujer).
 * Tiempo total de visualización de televisión: las puntuaciones de esta variable van desde 0 (nada de tiempo) a 7 (más de 3 horas).
+
+Gracias por la paciencia...

@@ -1,0 +1,88 @@
+---
+title: "Data cleaning process"
+author: "Maria Isabel Gamez Salazar"
+date: "2024-07-22"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    toc_float: true
+---
+```{r setup, include=FALSE}
+# Configuración inicial
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width = 8, fig.height = 8)
+
+# Configurar el espejo de CRAN
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+# Cargar librerías necesarias
+library(dplyr)
+library(ggplot2)
+library(readr)
+```
+```{r}
+# *Instalar y cargar la librería que podemos necesitar* 
+install.packages("dplyr")
+library(dplyr)
+```
+```{r}
+# 1. Cargar mis datos completos y guardar
+m8datos <- read.csv("/Users/mariaisabelgamezsalazar/Desktop/Master/M8/R1/m8datos/m8datos.csv")
+View(m8datos)
+write.csv(m8datos, "m8datos.csv", row.names = FALSE)
+
+# Con la función read.csv(la ruta donde lo tenia guardado) se lee un archivo CSV y despues visualizar los datos importados con la función View() se abre una ventana para visualizar el dataframe m8datos en una tabla. Después con la función write.csv se almacena en un dataframe llamado m8datos que ya esta dentro de la carpeta Data.
+```
+```{r}
+# 2.Eliminar las columnas que no me interesan
+m8datos <- m8datos %>% select(-name, -edition, -proddate, -idno, -pspwght, -pweight, -anweight, -dweight, -tvpol)
+View(m8datos)
+#Con la función select() del paquete dplyr se seleccionan las columnas específicas que no me interesan para mi proyecto. Aquí, se eliminan las columnas name, edition, proddate, idno, pspwght, pweight, anweight y dweight.Y siempre volvemos a visualizar los datos solo para asegurarnos de que no hay nada extraño.
+```
+```{r}
+# 3. Cambiar los numeros de rounds por los años
+m8datos <- m8datos %>% mutate(essround = recode(essround, 
+                                                `1` = 2002, 
+                                                `3` = 2006, 
+                                                `5` = 2010, 
+                                                `7` = 2014))
+View(m8datos)
+# Con las funciones o	mutate() y recode() recodificamos los valores en la columna essround, reemplazando los números 1, 3, 5 y 7 con los años 2002, 2006, 2010 y 2014, respectivamente.
+```
+```{r}
+#4. Cambio el nombre de mi columna essround
+m8datos <- m8datos %>%
+  rename(year = essround)
+View(m8datos)
+# Con la funcion rename cambiamos el nombre de una columna en el dataframe. Aquí, essround se cambia a year.
+
+```
+```{r}
+# Convierto en NA los valores de no contesta, refusals, NA.
+
+m8datos <- m8datos %>% mutate(
+  tvtot = ifelse(tvtot %in% c(77, 88, 99, 66), NA, tvtot),
+  happy = ifelse(happy %in% c(77, 88, 99, 66), NA, happy),
+  health = ifelse(health %in% c(7, 8, 9, 66), NA, health),
+  gndr = ifelse(gndr == 9, NA, gndr))
+View(m8datos)
+
+#	Con las funciones mutate() e ifelse() convertimos ciertos valores (77, 88, 99, 66) en NA en las columnas tvtot, happy, health y gndr para indicar datos faltantes o no aplicables ( o que al no resultar interesante queremos imputar como NA).
+```
+```{r}
+# Elimino las filas con NA
+m8datos_limpios <- na.omit(m8datos)
+View(m8datos_limpios)
+# Utilizando na.omit() elimino todas las filas del dataframe que contienen valores NA que no eran relevantes para mi estudio. Era un numero inferior al 4% de los datos.
+```
+```{r}
+#Guardo mi base de datos limpia
+write.csv(m8datos_limpios, "m8datoslimpios.csv", row.names = FALSE)
+# Uso la función write.csv() y guarda el dataframe m8datos_limpios en un archivo CSV llamado "m8datoslimpios.csv" sin índices de fila (row.names = FALSE) en R y GitHub at the same time. 
+
+```
+```{r}
+getwd()
+```
+
+

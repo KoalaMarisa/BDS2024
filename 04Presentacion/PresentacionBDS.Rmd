@@ -1,0 +1,200 @@
+---
+title: "Presentación BDS: La felicidad en Europa"
+author: "María Isabel Gámez"
+date: "`r Sys.Date()`"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+library (ggplot2)
+library (tidyverse)
+library (maps)
+library (DT)
+library (dplyr)
+library (here)
+library (knitr)
+library(kableExtra)
+library(viridis)
+
+file_path <- "../data/m8datoslimpios.csv"
+m8datos_limpios <- read.csv(file_path)
+```
+
+## INTRODUCCION
+
+
+* Los datos se han obtenido a partir de los resultados de `r nrow(m8datos_limpios)` encuestas de las `r length(unique(m8datos_limpios$year))` ediciones de la [European Social Survey](https://www.europeansocialsurvey.org/) en `r length(unique(m8datos_limpios$cntry))` países de Europa. 
+
+
+* Estas encuestas han tenido lugar desde `r min(m8datos_limpios$year)` hasta `r max(m8datos_limpios$year)`.
+
+
+* EL objetivo principal investigar las tendencias y variaciones en la felicidad a lo largo del tiempo, así como identificar posibles factores que puedan influir en este sentimiento.
+
+## TABLAS
+
+```{r tabla}
+
+felicidad_media <- m8datos_limpios %>%
+  group_by(cntry, year) %>%
+  summarise(mean_happy = mean(happy, na.rm = TRUE), .groups = 'drop')
+
+# Generar la tabla 
+kable(felicidad_media, col.names = c("País", "Año", "Felicidad Media")) %>%
+  kable_styling(font_size = 12) %>%
+  scroll_box(width = "750px", height = "600px")
+```
+
+## Gráficos
+
+1. Evolución de la felicidad en 15 países europeos 2002-2014
+2. Mapa de la felicidad media
+3. Relación entre las horas totales de televisión y la felicidad
+4. Relación entre la felicidad y salud con visualización de género
+
+## Evolucion de la felicidad 2002-2014
+
+```{r graph}
+avg_happy <- m8datos_limpios %>%
+  group_by(cntry, year) %>%
+  summarize(mean_happy = mean(happy, na.rm = TRUE))
+
+# Definir la paleta de 15 colores diferenciables
+custom_palette <- c("#999999", "#56B4E9", "#0072B2", "#E69F00", "#D55E00",
+                    "#CC79A7", "#8B4513", "#B2DF8A", "#33A02C", "#FB9A99",
+                    "#E31A1C", "#6A3D9A", "#FFFF99", "#F0E442", "#00CED1")
+
+# Crear el gráfico de líneas con el promedio y la paleta de colores personalizada
+ggplot(avg_happy, aes(x = year, y = mean_happy, color = cntry, group = cntry)) +
+  geom_line(size = 1) +
+  labs(title = "Promedio de Felicidad por País y Año",
+       x = "Año",
+       y = "Promedio de Puntuación de Felicidad",
+       color = "País") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom") +
+  scale_color_manual(values = custom_palette)
+```
+
+## Mapa de la felicidad europea 
+
+```{r mapa}
+
+media_felicidad <- m8datos_limpios %>%
+  group_by(cntry) %>%
+  summarise(mean_happy = mean(happy, na.rm = TRUE))
+
+# Filtrar los países seleccionados
+paises_seleccionados <- c("BE", "CH", "DE", "DK", "ES", "FI", "FR", "GB", "HU", "IE", "NL", "NO", "PL", "PT", "SE")
+media_felicidad <- media_felicidad %>% filter(cntry %in% paises_seleccionados)
+
+# Obtener los datos del mapa de Europa
+world <- map_data("world")
+europe_map <- world %>%
+  filter(region %in% c("Belgium", "Switzerland", "Germany", "Denmark", "Spain", "Finland", "France", "UK", "Hungary", "Ireland", "Netherlands", "Norway", "Poland", "Portugal", "Sweden"))
+
+# Recode los nombres de los países en el mapa de Europa para que coincidan con los códigos de país
+europe_map$region <- recode(europe_map$region, 
+                            'UK' = 'GB',
+                            'Belgium' = 'BE',
+                            'Switzerland' = 'CH',
+                            'Germany' = 'DE',
+                            'Denmark' = 'DK',
+                            'Spain' = 'ES',
+                            'Finland' = 'FI',
+                            'France' = 'FR',
+                            'Hungary' = 'HU',
+                            'Ireland' = 'IE',
+                            'Netherlands' = 'NL',
+                            'Norway' = 'NO',
+                            'Poland' = 'PL',
+                            'Portugal' = 'PT',
+                            'Sweden' = 'SE')
+
+# Unir los datos de felicidad media con los datos del mapa
+europe_happiness <- merge(europe_map, media_felicidad, by.x = "region", by.y = "cntry")
+
+# Crear el mapa de felicidad media
+grafico2 <- ggplot(data = europe_happiness, aes(x = long, y = lat, group = group, fill = mean_happy)) +
+  geom_polygon(color = "white", size = 0.2) +
+  coord_fixed(1.3) +
+  scale_fill_viridis_c(option = "plasma", name = "Media de Felicidad", na.value = "grey50") +
+  labs(title = "Nivel de felicidad en Europa (2002-2014)",
+       caption = "Fuente: Encuesta ESS") +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(fill = "white"),
+    panel.background = element_rect(fill = "white"),
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"),
+    plot.title = element_text(color = "black"),
+    panel.grid.major = element_line(color = "grey", size = 0.5),
+    panel.grid.minor = element_blank()
+  )
+
+# Mostrar el mapa
+print(grafico2)
+```
+
+
+## Relación entre la felicidad y el tiempo total de visualización de la televisión 
+
+```{r}
+
+# Crear el gráfico de correlación
+ggplot(m8datos_limpios, aes(x = tvtot, y = happy)) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +  # Línea de regresión con intervalo de confianza
+  scale_y_continuous(limits = c(6, 8)) +
+  labs(title = "Relación entre felicidad y horas totales de televisión",
+       x = "Horas totales de televisión (tvtot)",
+       y = "Puntuación de felicidad") +
+  theme_minimal()
+
+```
+
+## Relación entre felicidad y salud con diferencias de género
+
+```{r}
+
+data <- m8datos_limpios %>%
+  mutate(gndr = recode(gndr, `1` = "Male", `2` = "Female")) %>%
+  filter(!is.na(health) & !is.na(happy))
+
+ggplot(data, aes(x = health, y = happy, color = gndr, group = gndr)) +
+  stat_summary(fun = mean, geom = "line", size = 1.2) +
+  stat_summary(fun = mean, geom = "point", size = 3) +
+  scale_color_manual(values = c("Male" = "blue", "Female" = "red")) +
+  labs(title = "Interacción entre género y salud en la felicidad",
+       x = "Nivel de salud",
+       y = "Felicidad",
+       color = "Género") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## CONCLUSIONES
+
+```{r}
+paises_menos_felices <- media_felicidad %>%
+  slice_min(mean_happy, n = 2) %>%
+  pull(cntry)
+
+paises_mas_felices <- media_felicidad %>%
+  slice_max(mean_happy, n = 2) %>%
+  pull(cntry)
+
+```
+* El gráfico de la evolución de la felicidad muestra que en estos países europeos hay una media alta de felicidad, con variaciones entre cada país y con cierta estabilidad. 
+
+* Podemos ver claramente que Hungría y Portugal son los países con menor felicidad media y en cambio Dinamarca y Suiza son los que puestan una mayor felicidad media. 
+
+* Los datos indican que existe una correlación débil entre "felicidad" y "tiempo total de visualización de la televisión, pero cuanto más ven la televisión la felicidad disminuye. 
+
+* Los datos muestra una tendencia, a medida que los niveles de salud reportados aumentan, los niveles de felicidad reportados tienden a disminuir. Esta relación no es fuerte, pero es notable.
+
+#
+
+¡Muchas gracias David! 
